@@ -61,11 +61,8 @@ parametros_numericos= [a1,b1,c1,d1]
 
     %ESPACIO DE ESTADOS
     sys =ss(ALn,BLn,CLn,DLn)
-    %FUNCION DE TRANSFERENCIA
-    Gs = tf(sys)
     %POLOS/ VALORES REALES
     polos=eig(ALn)
-    
 
     %% CONTROLABILIDAD
     [rango,esControlable]= controlabilidad (sys)
