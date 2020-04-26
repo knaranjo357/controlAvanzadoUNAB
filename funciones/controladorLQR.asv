@@ -1,4 +1,5 @@
-function [Kest,Ki,sysLQR_lc,sys_u,polosLQR]= controladorLQR (sys,Q,R)
+function [Kest,Ki,sysLQR_lc,sys_u,polosLQR]= controladorLQR_Continua
+(sys,Q,R)
 
     [n,p]= size(sys.B)
     [r,n]= size(sys.C)

@@ -1,4 +1,4 @@
-function [rango,esControlable]= controlabilidad (sys)
+function [Mc,rango,esControlable]= controlabilidadContinua_seguimiento (sys)
 
 
     [n,p]= size(sys.B)
@@ -8,11 +8,11 @@ Ahat = [sys.A zeros(n,r);
         sys.C zeros(r,r)];
 Bhat = [sys.B;
         -sys.D]    
-M = ctrb(Ahat,Bhat)
+Mc = ctrb(Ahat,Bhat)
 
-rango=rank(M)
-
-    if rango == p+r
+rango=rank(Mc)
+%% el rango tiene que ser igual a n+r para que el sistema sea controlable
+    if rango == n+r
         esControlable=true
     else
         esControlable=false

@@ -1,8 +1,10 @@
-syms x1 x2 x3 u1 u2 u3 a b c d
+syms x1 x2 x3 u1 u2 u3 
+f1 = -x1*x2 + u2*u3;
+f2 = -x2*x3 + (u1/u2);
+f3 = -x3^2 + u1;
 
-f1 = -a*x2 - b*x1^2 + u1*u2;
-f2 = -c*x3*x2 + u2^2 ;
-f3 = -d*x3 + u3*x1 + u1;
+y1 = 2*x1 - x3;
+y2 = 2*x2;
 
     % F = funciones
     % X = estados
@@ -12,7 +14,7 @@ f3 = -d*x3 + u3*x1 + u1;
 F = [f1; f2; f3]        %cambiar segun numero de funciones
 X = [x1; x2; x3]        %cambiar segun numero de estados
 U = [u1; u2; u3]        %cambiar segun numero de entradas
-Y = [x1;x3]             %cambiar segun numero de salidas
+Y = [y1;y2]             %cambiar segun numero de salidas
 
     % A= matriz de estados (simbolica)
     % B= matriz de entradas (simbolica)
@@ -26,16 +28,15 @@ Y = [x1;x3]             %cambiar segun numero de salidas
 
 %PUNTO DE EQUILIBRIO
 
-x10 = 2;
-x20 = 4;
-x30 = 4;
-u20 = sqrt(c*x30*x20)
-u10 = (a*x20 + b*x10^2)/u20
-u30 = (d*x30 - u10)/x10
-a1 = 2
-b1 = 4
-c1 = 1
-d1 = 3
+
+u20 = 4;
+u10 = 4;
+u30 = 1;
+
+x30 = sqrt(u10);
+x20 = (u10/u20)/x30;
+x10 = (-u20*u30)/(-x20);
+
 
 % MAXIMO ARRAY 10 ELEMENTOS
 estados_x= [x1,x2,x3] 
@@ -44,8 +45,8 @@ salidas_u= [u1,u2,u3]
 estados_x10= [x10,x20,x30]
 salidas_u10= [u10,u20,u30]
 
-parametros_simbolicos= [a,b,c,d]
-parametros_numericos= [a1,b1,c1,d1]
+parametros_simbolicos= []
+parametros_numericos= []
 
     % AL= matriz de estados (salidas y estados)
     % BL= matriz de entradas (salidas y estados)
@@ -64,26 +65,18 @@ parametros_numericos= [a1,b1,c1,d1]
     %FUNCION DE TRANSFERENCIA
     Gs = tf(sys)
     %POLOS/ VALORES REALES
-    polos=eig(ALn)
+    polosContinua=eig(ALn)
+            polodominante = abs(max(polosContinua))
+            ts=4/polodominante
     
+numeroMuestras=40
+
+            Tm=ts/numeroMuestras
+    
+    %% EN DISCRETA
+    sysd = c2d(sys,Tm)
+    polosDiscreta=eig(sysd.A)
 
     %% CONTROLABILIDAD
-    [rango,esControlable]= controlabilidad (sys)
+    [Mc,rango,esControlable]= controlabilidad (sys)
 
-    %% CONTROLADOR OPTIMO LQR
-Q = diag([1 1 1 50 20])%tamaño n + r
-R = diag([0.1 0.1 0.1])%tamaño n
-
-    [Kest,Ki,sysLQR_lc,sys_u,polosLQR]= controladorLQR (sys,Q,R)
-    %%%%%   %%%%%   %%%%%   %%%%%%  %%%%%   %%%%%
-    graf_LQR(sysLQR_lc, sys_u)
-    
-%% CONTROLADOR PID
-
-
-%% CONTROLADOR POLOS REALES
-
-%% CONTROLADOR POLOS COMPLEJOS
-
-
-        

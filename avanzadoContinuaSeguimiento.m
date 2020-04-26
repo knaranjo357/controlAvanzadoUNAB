@@ -90,33 +90,57 @@ numeroMuestras=40
     
     % GLn= matriz de estados (numericamente DISCRETA)
     % HLn= matriz de entradas (numericamente DISCRETA)
+    
     % CLn= matriz de salidas (numericamente) IGUAL PARA DISCRETA Y CONTINUA
-    % DLn= matriz de transmision directa (numericamente)           
+    % DLn= matriz de transmision directa (numericamente) IGUAL PARA DISCRETA Y CONTINUA 
+    
+    GLn = sysd.a
+    HLn = sysd.b
+    
+%% COMPARACION CONTINUA Y DISCRETA
+
+    grafComparacion_con_dis (sys, sysd)
 
     %% RGA
-        %CONTINUA
+        %CONTINUA ---RECOMENDADO POR SENCILLEZ---
         K = dcgain(Gs)
         RGA = K.*pinv(K)'
-        %DISCRETA
-        
+       
+            %DISCRETA
+            Gz = tf(sysd)
+            Kz = dcgain(Gz)
+            RGAz = Kz.*pinv(Kz)'
+            
 
-    %% CONTROLABILIDAD
-    [rango,esControlable]= controlabilidad (sys)
+
+    %% CONTROLABILIDAD SEGUIMIENTO
+    [Mc,rango,esControlable]= controlabilidadContinua_seguimiento (sys)
+    [Mcd,rangod,esControlabled]= controlabilidadDiscreta_seguimiento (sysd)
+
+    %% CONTROLABILIDAD PUNTO DE EQUILIBRIO
+%% CONTROLADOR PID 1-DOF
+    %depende del numero de salidas que tengamos y su 
+    %respectivo actuador que lo va a controlar
+% y1c=Gs()
+% u1c=Gs()
+% Gsaliday1_entradau1= G(y1c,u1c)
+
+%% CONTROLADOR PID 2-DOF
+
+%% CONTROLADOR POLOS REALES
+
+
+%% CONTROLADOR POLOS COMPLEJOS
 
     %% CONTROLADOR OPTIMO LQR
 Q = diag([1 1 1 50 20])%tamaño n + r
 R = diag([0.1 0.1 0.1])%tamaño n
 
-    [Kest,Ki,sysLQR_lc,sys_u,polosLQR]= controladorLQR (sys,Q,R)
+    [Kest,Ki,sysLQR_lc,sys_u,polosLQR]= controladorLQR_Continua (sys,Q,R)
     %%%%%   %%%%%   %%%%%   %%%%%%  %%%%%   %%%%%
     graf_LQR(sysLQR_lc, sys_u)
     
-%% CONTROLADOR PID
 
-
-%% CONTROLADOR POLOS REALES
-
-%% CONTROLADOR POLOS COMPLEJOS
 
 
         
