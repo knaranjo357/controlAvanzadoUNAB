@@ -1,5 +1,5 @@
 
-function [Kesd,Kid,sys_new,sys_u,polos]= controlPolosComplejos_d (sys,Tm,Mp,Grand,Delta)
+function [pocKesd,pocKid,pocsys_new,pocsys_u,pocpolos]= controlPolosComplejos_d (sysd,Tm,Mp,Grand,Delta)
 % Diseño polos complejos
 % necesito
 % sys
@@ -28,25 +28,25 @@ Hhat = [HLn;
     det(X)
     K = Grand*inv(X)
     %salidas
-    Kesd = K(:,1:n)
-    Kid = -K(:,n+1:end)
+    pocKesd = K(:,1:n)
+    pocKid = -K(:,n+1:end)
 
 %% Modelo lineal en lazo cerrado para seguimiento
-    AA = [GLn - HLn*Kesd, HLn*Kid;
-         -CLn*GLn + CLn*HLn*Kesd ,eye(r)-CLn*HLn*Kid]
+    AA = [GLn - HLn*pocKesd, HLn*pocKid;
+         -CLn*GLn + CLn*HLn*pocKesd ,eye(r)-CLn*HLn*pocKid]
     BB = [zeros(n,r);
           eye(r)]
     CC = [CLn, zeros(r,r)]
     DD = zeros(r,r);
-sys_new = ss(AA,BB,CC,DD,Tm)
+pocsys_new = ss(AA,BB,CC,DD,Tm)
 
-polos=eig(AA)
+pocpolos=eig(AA)
 
     % Acción de control
-    CC1 = [-Kesd Kid]
+    CC1 = [-pocKesd pocKid]
     CC1 = -K
     DD1 = zeros(p,r);
-sys_u = ss(AA,BB,CC1,DD1,Tm)
+pocsys_u = ss(AA,BB,CC1,DD1,Tm)
 
     
 end
