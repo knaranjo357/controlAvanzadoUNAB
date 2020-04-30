@@ -1,4 +1,4 @@
-function [A,B] = graf_LQR (sysLQR_lc, sys_u)
+function [A,B] = graficas_step_u (sysLQR_lc, sys_u)
  %%%%%   %%%%%   %%%%%   %%%%%%  %%%%%   %%%%%
     A =figure('Name','RTA step')
         step(sysLQR_lc)

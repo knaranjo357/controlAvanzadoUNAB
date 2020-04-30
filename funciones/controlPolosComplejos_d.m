@@ -1,29 +1,21 @@
-
-function [pocKesd,pocKid,pocsys_new,pocsys_u,pocpolos]= controlPolosComplejos_d (sysd,Tm,Mp,Grand,Delta)
-% Diseño polos complejos
-% necesito
-% sys
-% Tm
-% Mp
-% Grand
-% Delta
-    [n,p]= size(sysd.B)
-    [r,n]= size(sysd.C)
+function [pocKesd,pocKid,pocsys_new,pocsys_u_d,pocpolos] = controlPolosComplejos_d (sysd, delta,Grand,Tm)
 
 GLn = sysd.a
 HLn = sysd.b
 CLn = sysd.c
+
+
+    [n,p]= size(sysd.B)
+    [r,n]= size(sysd.C)
+
+
 
 Ghat = [GLn, zeros(n,r);
         -CLn*GLn, eye(r)]
 Hhat = [HLn;
         -CLn*HLn]
     
-    zita = abs(log(Mp))/sqrt(pi^2+(log(Mp))^2);
-    wn = 4/(zita*ts)
-    wd = wn*sqrt(1-zita^2)
-    s1 = -zita*wn + j*wd
-    
+
     X = lyap(Ghat, -delta, -Hhat*Grand);
     det(X)
     K = Grand*inv(X)
@@ -46,7 +38,7 @@ pocpolos=eig(AA)
     CC1 = [-pocKesd pocKid]
     CC1 = -K
     DD1 = zeros(p,r);
-pocsys_u = ss(AA,BB,CC1,DD1,Tm)
+pocsys_u_d = ss(AA,BB,CC1,DD1,Tm)
 
-    
+
 end

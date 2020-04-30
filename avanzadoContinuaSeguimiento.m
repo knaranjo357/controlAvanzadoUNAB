@@ -74,7 +74,7 @@ parametros_numericos= [a1,b1,c1,d1]
             %para discretizar hay diferentes metodos
             
             %BODE
-            bodemag(sys)
+%bodemag(sys)
                 %criterio a -3db
 %wn                
                 %criterio a -40db
@@ -103,6 +103,9 @@ numeroMuestras=100
 
     %% RGA
         %CONTINUA ---RECOMENDADO POR SENCILLEZ---
+        
+        %si el sistema presenta ganancia de velocidad o aceleracion
+        %se tienen que sacar respectivamente
         K = dcgain(Gs)
         RGA = K.*pinv(K)'
        
@@ -113,49 +116,56 @@ numeroMuestras=100
             
 
 
-    %% CONTROLABILIDAD SEGUIMIENTO
-    [Mc,rango,esControlable_c]= controlabilidadContinua_seguimiento (sys)
-    [Mcd,rangod,esControlable_d]= controlabilidadDiscreta_seguimiento (sysd)
+%% CONTROLABILIDAD SEGUIMIENTO    %% CONTROLABILIDAD SEGUIMIENTO  %% CONTROLABILIDAD SEGUIMIENTO 
+    %el rango tiene que tener un tamaño n+r
+        %% CONTINUA
+        [Mc,rango,esControlable_c]= controlabilidadContinua_seguimiento (sys)
+        %% DISCRETA
+        [Mcd,rangod,esControlable_d]= controlabilidadDiscreta_seguimiento (sysd)
 
-    %% CONTROLABILIDAD PUNTO DE EQUILIBRIO
-%% CONTROLADOR PID 1-DOF
-    %depende del numero de salidas que tengamos y su 
-    %respectivo actuador que lo va a controlar
-% y1c=Gs()
-% u1c=Gs()
-% Gsaliday1_entradau1= G(y1c,u1c)
-
-%% CONTROLADOR PID 2-DOF
-
-%% CONTROLADOR POLOS REALES
+%% CONTROLABILIDAD PUNTO DE EQUILIBRIO %% CONTROLABILIDAD PUNTO DE EQUILIBRIO %% CONTROLABILIDAD PUNTO DE EQUILIBRIO
+    %el rango tiene que tener un tamaño n
 
 
-%% CONTROLADOR POLOS COMPLEJOS
+%% CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--
+% CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--
+% CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--
 
-%% CONTROLADOR OPTIMO LQR
-    %% CONTINUA
-Qc = diag([1 1 1 10 10])%tamaño n + r
-Rc = diag([0.1 0.1 0.1])%tamaño n
+%% CONTROLADOR PID 1-DOF --CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--
+    %%     CONTINUA
 
+    %%     DISCRETA
 
-            [lqrKest_c,lqrKi_c,lqr_sysLQR_lc_c,lqrsys_u_c,polosLQR_c]= controladorLQR_Continua(sys,Qc,Rc)
-            %%%%%   %%%%%   %%%%%   %%%%%%  %%%%%   %%%%%
-            graf_LQR(sysLQR_lc_c, lqrsys_u_c)
+%% CONTROLADOR PID 2-DOF  --CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--
+    %%     CONTINUA
 
-    %DISCRETA
-Qd = diag([1 1 1 0.1 0.1])%tamaño n + r
-Rd = diag([10 10 10])%tamaño n
-            [lqrKest_d,lqrKi_d,lqrsys_lc_d,lqrsys_u_d,polosLQR_d]= controladorLQR_Discreta (sysd,Qd,Rd,Tm)
-            graf_LQR(lqrsys_lc_d, lqrsys_u_d)
+    %%     DISCRETA
 
-        
-%% CONTROLADOR POLOS COMPLEJOS
+%% CONTROLADOR POLOS REALES  --CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--
     %%     CONTINUA
 
 
 
     %%     DISCRETA
 ts = 1;
+s1 = -4/ts
+Polc = [s1, 1.2*s1, 5*s1, 5*s1, 6*s1]
+    Pold = exp(Tm*Polc)
+    delta = diag(Pold)  % Matriz cuadrada de n+r
+% Grand = 2*rand(p,n+r)-1;
+Grand = [0.412092176039218 -0.907657218737692 0.389657245951634 -0.931107838994183 0.531033576298005;-0.936334307245159 -0.805736437528305 -0.365801039878279 -0.122511280687204 0.590399802274126;-0.446154030078220 0.646915656654585 0.900444097676710 -0.236883085813983 -0.626254790891243];
+   
+    [porKes_d,porKi_d,por_sys_lc_d,por_sys_lc_u_d]= controlPolosReales_d (sysd, delta,Grand,Tm)
+    
+%% CONTROLADOR POLOS COMPLEJOS  --CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--
+    %%     CONTINUA
+
+
+
+    %%     DISCRETA
+sysd = sysd;
+ts = 1;
+Tm = Tm
 Mp = 0.1
 Polc = [s1, conj(s1), 2*real(s1), 5*real(s1), 6*real(s1)]                           % Matriz cuadrada de n+r
 Pold = exp(Tm*Polc)
@@ -167,5 +177,108 @@ delta = [   real(Pold(1))   imag(Pold(1))       0               0           0;
 %Grand = 2*rand(p,n+r)-1;
 Grand = [-0.300032468030383 0.232089352293278 0.661657255792582 0.834387327659620 0.507458188556991;-0.606809499137584 -0.0534223021945415 0.170528182305449 -0.428321962359253 -0.239108306049287;-0.497832284047938 -0.296680985874007 0.0994472165822791 0.514400458221443 0.135643281450442];
         
-        [pocKesd,pocKid,pocsys_new,pocsys_u,pocpolos]= controlPolosComplejos_d (sysd,Tm,Mp,Grand,Delta)
+    [pocKesd,pocKid,pocsys_new,pocsys_u_d,pocpolos] = controlPolosComplejos_d (sysd, delta,Grand,Tm)    
+
+
+%% CONTROLADOR OPTIMO LQR  --CONTROLADORES SEGUIMIENTO--CONTROLADORES SEGUIMIENTO--
+    %% CONTINUA
+Qc = diag([1 1 1 10 10])%tamaño n + r
+Rc = diag([0.1 0.1 0.1])%tamaño n
+
+
+            [lqrKest_c,lqrKi_c,lqr_sysLQR_lc_c,lqrsys_u_c,polosLQR_c]= controladorLQR_Continua(sys,Qc,Rc)
+            %%%%%   %%%%%   %%%%%   %%%%%%  %%%%%   %%%%%
+%graficas_step_u (lqr_sysLQR_lc_c, lqrsys_u_c)
+
+    %% DISCRETA
+Qd = diag([1 1 1 0.1 0.1])%tamaño n + r
+Rd = diag([10 10 10])%tamaño n
+            [lqrKest_d,lqrKi_d,lqrsys_lc_d,lqrsys_u_d,polosLQR_d]= controladorLQR_Discreta (sysd,Qd,Rd,Tm)
+% graficas_step_u (lqrsys_lc_d, lqrsys_u_d)
+
+%%      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+xini = [0.2; 0.6; 0.1]
+
+
+
+%% CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--
+% CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--
+% CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--
+
+%% CONTROLADOR PID 1-DOF --CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--
+
+%% CONTROLADOR POLOS REALES --CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--
+    %% CONTINUA
+
+    %% DISCRETA
     
+ts = 1.5
+    Tm = Tm
+    xini= xini
+    s1 = -4/ts
+Polc = [s1, 2*s1, 4*s1] % vector de n
+    Pold = exp(Tm*Polc)
+    delta = diag(Pold)  % Matriz cuadrada de n
+%Grand = 2*rand(p,n)-1;
+Grand=[0.929777070398553,0.9914333896485891,-0.716227322745569;-0.684773836644903,-0.0292487025543176,-0.156477434747450;0.941185563521231,0.600560937777600,0.831471050378134]
+
+
+    %controlador
+    [K,sys_new,sys_u]= controlPolosReales_d_ptoEquilibrio (sysd, delta, Grand)
+    
+    %grafica
+    graficas_step_u_puntoEquilibrio (sys_new, sys_u, xini)
+    
+%% CONTROLADOR POLOS COMPLEJOS --CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--
+    %% CONTINUA
+
+    %% DISCRETA
+ts = 1.5;
+Mp = 0.1
+        Tm = Tm
+        xini= xini
+        zita = abs(log(Mp))/sqrt(pi^2+(log(Mp))^2);
+        wn = 4/(zita*ts)
+        wd = wn*sqrt(1-zita^2)
+        %polo dominante
+        s1 = -zita*wn + j*wd
+    Polc = [s1, conj(s1), 4*real(s1)]                   % vector de n
+        Pold = exp(Tm*Polc)
+    delta = [   real(Pold(1))   imag(Pold(1))   0;      % Matriz cuadrada de n
+                imag(Pold(2))   real(Pold(2))   0;
+                0               0               Pold(3)]
+% Grand = 2*rand(p,n)-1;
+Grand = [0.584414659119109 -0.928576642851621 0.357470309715547;0.918984852785806 0.698258611737554 0.515480261156667;0.311481398313174 0.867986495515101 0.486264936249832];
+    
+    %controlador
+    [K,sys_new,sys_u]= controlPolosComplejos_d_ptoEquilibrio (sysd, delta, Grand)
+    %grafica
+    graficas_step_u_puntoEquilibrio (sys_new, sys_u, xini)
+%% CONTROLADOR OPTIMO LQR --CONTROLADORES PUNTO DE EQUILIBRIO--CONTROLADORES PUNTO DE EQUILIBRIO--
+    %% CONTINUA
+
+    %% DISCRETA
+Q = diag([2 0.1 0.8]) % Matriz diagonal de tamaño n+r
+R = diag([10 10 1])           % Matriz diagonal de tamaño p
+    xini = xini
+    %controlador
+    [K,sys_new,sys_u]= controlLQR_d_ptoEquilibrio (sysd,Q,R)
+    
+    %grafica
+    graficas_step_u_puntoEquilibrio (sys_new, sys_u, xini)
